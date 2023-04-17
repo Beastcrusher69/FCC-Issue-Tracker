@@ -4,7 +4,51 @@ const express     = require('express');
 const bodyParser  = require('body-parser');
 const expect      = require('chai').expect;
 const cors        = require('cors');
+const mongoose    =require('mongoose');
 require('dotenv').config();
+
+const MONGO_URI = process.env['MONGO_URI'];
+
+mongoose.connect(MONGO_URI, 
+                 {
+                   useUnifiedTopology: true ,
+                   useNewUrlParser : true
+                 });
+
+
+// { 
+//     "_id": "5871dda29faedc3491ff93bb",
+//     "issue_title": "Fix error in posting data",
+//     "issue_text": "When we post data it has an error.",
+//     "created_on": "2017-01-08T06:35:14.240Z",
+//     "updated_on": "2017-01-08T06:35:14.240Z",
+//     "created_by": "Joe",
+//     "assigned_to": "Joe",
+//     "open": true,
+//     "status_text": "In QA"
+//   }
+
+const IssueSchema =  mongoose.Schema(
+  {
+    issue_title : {type : String , required : true},
+    issue_text  : {type : String , required : true},
+    created_on : Date,
+    updated_on : Date,
+    created_by : {type : String , required : true},
+    assigned_to : String ,
+    open : Boolean ,
+    status_text : String
+  }
+)
+
+const Issue = mongoose.model('Issue',IssueSchema);
+
+const ProjectSchema = mongoose.Schema({
+  name : {type: String ,required : true} , 
+  issues : [ IssueSchema]
+})
+
+const Project = mongoose.model('Project', ProjectSchema )
 
 const apiRoutes         = require('./routes/api.js');
 const fccTestingRoutes  = require('./routes/fcctesting.js');

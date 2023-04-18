@@ -4,8 +4,10 @@ const express     = require('express');
 const bodyParser  = require('body-parser');
 const expect      = require('chai').expect;
 const cors        = require('cors');
-const mongoose    =require('mongoose');
+
 require('dotenv').config();
+
+const mongoose = require('mongoose');
 
 const MONGO_URI = process.env['MONGO_URI'];
 
@@ -28,27 +30,6 @@ mongoose.connect(MONGO_URI,
 //     "status_text": "In QA"
 //   }
 
-const IssueSchema =  mongoose.Schema(
-  {
-    issue_title : {type : String , required : true},
-    issue_text  : {type : String , required : true},
-    created_on : Date,
-    updated_on : Date,
-    created_by : {type : String , required : true},
-    assigned_to : String ,
-    open : Boolean ,
-    status_text : String
-  }
-)
-
-const Issue = mongoose.model('Issue',IssueSchema);
-
-const ProjectSchema = mongoose.Schema({
-  name : {type: String ,required : true} , 
-  issues : [ IssueSchema]
-})
-
-const Project = mongoose.model('Project', ProjectSchema )
 
 const apiRoutes         = require('./routes/api.js');
 const fccTestingRoutes  = require('./routes/fcctesting.js');
@@ -107,3 +88,4 @@ const listener = app.listen(process.env.PORT || 3000, function () {
 });
 
 module.exports = app; //for testing
+

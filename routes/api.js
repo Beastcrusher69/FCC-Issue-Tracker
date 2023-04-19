@@ -46,10 +46,21 @@ module.exports = function (app) {
         res.json({
           error : "please enter the required fields"
         })
+        return; 
       }
 
+      let newIssue = Issue.create({
+        issue_title : issue_title || "",
+        issue_text  : issue_text || "",
+        created_on : new Date(),
+        updated_on : new Date(),
+        created_by : created_by || "",
+        assigned_to : assigned_to || "" ,
+        open : true ,
+        status_text : status_text || ""
+      })
 
-      Project.findOne({ name : project} , (err , projectData) => {
+      Project.findOne({ name : project}).then((err ,projectData) => {
 
         if(!projectData){
           const projectData = Project.create({
@@ -82,23 +93,7 @@ module.exports = function (app) {
       ) }
                            
       })
-      
-
-      const newIssue = Issue.create({
-        issue_title : issue_title || "",
-        issue_text  : issue_text || "",
-        created_on : new Date(),
-        updated_on : new Date(),
-        created_by : created_by || "",
-        assigned_to : assigned_to || "" ,
-        open : true ,
-        status_text : status_text || ""
-      })
-
-      res.json(newIssue);
-
-      
-      
+  
     })
     
     .put(function (req, res){

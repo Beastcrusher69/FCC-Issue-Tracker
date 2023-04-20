@@ -31,6 +31,7 @@ module.exports = function (app) {
     .get(function (req, res){
       let project = req.params.project;
       
+      
     })
     
     .post(function (req, res){
@@ -42,14 +43,7 @@ module.exports = function (app) {
            ,assigned_to
            ,status_text} = req.body ; 
 
-      if ( !issue_title || !issue_text || !created_by){
-        res.json({
-          error : "please enter the required fields"
-        })
-        return; 
-      }
-
-      let newIssue = Issue.create({
+      let newIssue = new Issue({
         issue_title : issue_title || "",
         issue_text  : issue_text || "",
         created_on : new Date(),
@@ -60,39 +54,36 @@ module.exports = function (app) {
         status_text : status_text || ""
       })
 
-      Project.findOne({ name : project}).then((err ,projectData) => {
+    
+      Project.findOne({name : project}).then(err ,projectData){
 
-        if(!projectData){
-          const projectData = Project.create({
-            name: project
-          })
-
-          projectData.issues.push(newIssue);
-
-          projectData.save((err, data)=>{
-            if(err || !data){
-              res.json({error : 'there was an error'})
-            }
-            else{
-              res.json(newIssue);
-            }
-          })
+        if(err){
+          res.send({err : "error"})
         }
         else{
-          projectIssues.issues.push(newIssue);
+        res.send(projectData);
+          
+        }
+        
+      //   if(!projectData){
+      //     const projectData = new Project({
+      //       name: project,
+      //       issues : []
+      //     })
 
-          projectData.save((err, data)=>{
-            if(err || !data){
-              res.json({error : 'there was an error'})
-            }
-            else{
-              res.json(newIssue);
-            }
+      //     projectData.issues.push(newIssue);
+      //     projectData.save();
+      //     res.json(newIssue);
+
+         
+      //   }
+      //   else{
+      //     projectData.issues.push(newIssue);
+      //     projectData.save();
+      //     res.json(newIssue);
+            
+      // }
       }
-
-      ) }
-                           
-      })
   
     })
     

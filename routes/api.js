@@ -42,7 +42,7 @@ module.exports = function (app) {
         assigned_to,
         status_text
       } = req.query ;
-
+      
       const match = await Project.aggregate([
         
         { $match : { name : project}},
@@ -69,13 +69,8 @@ module.exports = function (app) {
                          ?  { $match : { "$issues.status_text" : status_text}}
                         :{ $match : {}}
                         ])
-
-        
         let mappedData = match.map((item)=> item.issues)
-        res.json(mappedData)
-      
-                      
-    
+        res.json(match)
     })
     
     .post(async function (req, res){
@@ -124,8 +119,71 @@ module.exports = function (app) {
   
     })
     
-    .put(function (req, res){
+    .put(async function (req, res){
       let project = req.params.project;
+
+      let { _id
+           , issue_title
+           ,issue_text
+           ,created_by
+           ,assigned_to
+           ,status_text
+          ,open} = req.body ; 
+
+      if(!_id){
+        res.json({ error: 'missing _id' });
+      }
+
+      if(  !issue_title &&
+           !issue_text  &&
+           !created_by &&
+           !assigned_to &&
+           !status_text &&
+          !open
+      ){
+        res.json({ error: 'no update field(s) sent', '_id': _id })
+      }
+
+      const projectData = await Project.findOne({name : project});
+
+      if(!projectData){
+        res.json({ error: 'could not update', '_id': _id });
+        console.log('1')
+      }
+      else{
+
+        
+        const issueArr = projectData.issues.filter(d => {
+          return d._id === "ObjectId('" + _id + "')" ;
+        });
+
+        console.log(projectData)
+        console.log(issueArr)
+
+        // if(!issueData){
+        //   res.json({ error: 'could not update', '_id': _id });
+        // console.log('2')
+          
+        // }
+        // else{
+        //   issueData.issue_title = issue_title ||issueData.issue_title;
+        //   issueData.issue_text = issue_text || issueData.issue_text;
+        //   issueData.created_by = created_by || issueData.created_by;
+        //   issueData.assigned_to = assigned_to || issueData.assigned_to;
+        //   issueData.status_text = status_text || issueData.status_text;
+        //   issueData.open = open ||  issueData.open;
+
+        //   Project.save();
+
+        //   res.json({ result: 'successfully deleted', '_id': _id });
+          
+          
+        // }
+        
+      }
+
+
+                              
       
     })
     

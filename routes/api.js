@@ -1,5 +1,6 @@
 'use strict';
 const mongoose    =require('mongoose');
+const ObjectId = mongoose.Types.ObjectId ;
 
 const IssueSchema =  mongoose.Schema(
   {
@@ -29,7 +30,6 @@ module.exports = function (app) {
   app.route('/api/issues/:project')
   
     .get( async function (req, res){
-
 
        let project = req.params.project;
 
@@ -148,37 +148,31 @@ module.exports = function (app) {
 
       if(!projectData){
         res.json({ error: 'could not update', '_id': _id });
-        console.log('1')
       }
       else{
 
         
-        const issueArr = projectData.issues.filter(d => {
-          return d._id === "ObjectId('" + _id + "')" ;
-        });
+        const issueData = await Project.issues.id(_id);
+        
 
-        console.log(projectData)
-        console.log(issueArr)
-
-        // if(!issueData){
-        //   res.json({ error: 'could not update', '_id': _id });
-        // console.log('2')
+        if(!issueData){
+          res.json({ error: 'could not update', '_id': _id });
           
-        // }
-        // else{
-        //   issueData.issue_title = issue_title ||issueData.issue_title;
-        //   issueData.issue_text = issue_text || issueData.issue_text;
-        //   issueData.created_by = created_by || issueData.created_by;
-        //   issueData.assigned_to = assigned_to || issueData.assigned_to;
-        //   issueData.status_text = status_text || issueData.status_text;
-        //   issueData.open = open ||  issueData.open;
+        }
+        else{
+          issueData.issue_title = issue_title ||issueData.issue_title;
+          issueData.issue_text = issue_text || issueData.issue_text;
+          issueData.created_by = created_by || issueData.created_by;
+          issueData.assigned_to = assigned_to || issueData.assigned_to;
+          issueData.status_text = status_text || issueData.status_text;
+          issueData.open = open ||  issueData.open;
+          
+          projectData.save();
 
-        //   Project.save();
-
-        //   res.json({ result: 'successfully deleted', '_id': _id });
+          res.json({  result: 'successfully updated', '_id': _id });
           
           
-        // }
+        }
         
       }
 
@@ -187,8 +181,44 @@ module.exports = function (app) {
       
     })
     
-    .delete(function (req, res){
+    .delete(async function (req, res){
       let project = req.params.project;
+      let _id = req.body._id;
+
+      const projectData = await Project.findOne({name : project});
+
+      if(!_id){
+        res.json({ error: 'missing _id' });
+      }
+      
+       if(!projectData){
+        res.json({ error: 'could not delete', '_id': _id });
+         console.log('1');
+      }
+      else{
+        
+        const issueData = await Project.issues.id(_id);
+        
+
+        if(!issueData){
+          res.json({ error: 'could not delete', '_id': _id });
+         console.log('2');
+          
+        }
+        else{
+          console.log(issueData)
+          issueData.deleteOne();
+
+          projectData.save();
+
+          res.json({ result: 'successfully deleted', '_id': _id });
+          
+          
+        }
+        
+      }
+
+      
       
     });
 
